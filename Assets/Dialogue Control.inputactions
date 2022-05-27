@@ -1,0 +1,34 @@
+{
+    "name": "Dialogue Control",
+    "maps": [
+        {
+            "name": "Choice Navigation",
+            "id": "6e55741d-89db-4f09-90ba-eb8ab17188c6",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "9dea925d-b245-4244-97fa-c878fe76f21f",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "5e683305-537c-421b-b201-5290cd7fa277",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
