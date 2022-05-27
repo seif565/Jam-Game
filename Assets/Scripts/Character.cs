@@ -4,15 +4,15 @@ using UnityEngine.InputSystem;
 public class Character : MonoBehaviour
 {
     [SerializeField] float moveSpeed;
-    [SerializeField] float travelTime;
     [SerializeField] float detectRadius = 4f;
-    Vector3 mouseClickPosition;
     Rigidbody2D playerRB;
     BoxCollider2D boxCollider;
     SpriteRenderer spriteRenderer;
     Animator animator;
     float xInput;
     bool isHiding = false;
+    bool canHide = false;
+
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -24,41 +24,52 @@ public class Character : MonoBehaviour
     void Update()
     {
         bool isWalking = xInput != 0;
-        animator.SetBool("isWalking", isWalking);
+        animator.SetBool("isRunning", isWalking);
+        canHide = boxCollider.IsTouchingLayers(LayerMask.GetMask("Hiding Place"));        
+        Debug.Log("isHiding: " + isHiding);
+        Debug.Log("Can Hide: " + canHide);
+
     }
 
     private void FixedUpdate()
     {
         playerRB.velocity = new Vector2(xInput * moveSpeed, playerRB.velocity.y);
     }
-    public void OnMove(InputAction.CallbackContext value)
+
+    public void OnMove(InputAction.CallbackContext context)
     {
-        xInput = value.ReadValue<float>();
+        if(isHiding) return;
+        xInput = context.ReadValue<float>();
+        if(context.performed)
+        {
+            spriteRenderer.flipX = xInput < 0 ;
+        }
     }
 
 
-    public void OnHide(InputAction.CallbackContext callbackContext)
-    {
-        if (callbackContext.performed)
+    public void OnHide(InputAction.CallbackContext context)
+    {        
+        if (context.performed)
         {
-            float axisValue = callbackContext.ReadValue<float>();
+            float axisValue = context.ReadValue<float>();
             Hide(axisValue);
         }
     }
 
     void Hide(float axisValue)
     {
-        bool canHide = boxCollider.IsTouchingLayers(LayerMask.GetMask("Hiding"));
         if (!canHide) return;
-        isHiding = !isHiding;
-        if(isHiding && axisValue > 0)
+        Debug.Log(canHide);
+        if (!isHiding && axisValue > 0)
         {
-            gameObject.layer = LayerMask.GetMask("Hiding Char");
+            isHiding = true;
+            gameObject.layer = 7;
             spriteRenderer.color = new Color(1, 1, 1, 0.3f);
         }
-        else
+        else if (isHiding && axisValue < 0)
         {
-            gameObject.layer = LayerMask.GetMask("Player");
+            isHiding = !isHiding;
+            gameObject.layer = 3;
             spriteRenderer.color = Color.white;
         }
 
@@ -71,14 +82,6 @@ public class Character : MonoBehaviour
             Collider2D Interactable = Physics2D.OverlapCircle(transform.position, detectRadius, LayerMask.GetMask("Interactable"));
             Debug.Log(Interactable is not null ? "isNotNull" : "isNull");
         }
-    }
-
-    public void OnClick(InputAction.CallbackContext context)
-    {
-        Debug.Log("Mouse Clicked");
-        Vector2 mousePos = Mouse.current.position.ReadValue();
-        mousePos = Camera.main.ScreenToViewportPoint(mousePos);
-        Vector3.MoveTowards(transform.position, new Vector2(mouseClickPosition.x, transform.position.y), travelTime);
     }
 
     void OnDrawGizmos()
